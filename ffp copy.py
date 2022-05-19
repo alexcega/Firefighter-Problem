@@ -11,10 +11,9 @@ n_burned =  0
 adjacency = np.array([[0, 1, 1, 1, 0],[1, 0, 1, 0, 1],[1, 1, 0, 0, 0],[1, 0, 0, 0, 1],[0, 1, 0, 1, 0]])
 size_of_graph= 0 
 color_info = ['#00b4d9'] 
+# Declare initial fire node
 
-#* Declare initial fire node
 next_fire_set = {0}
-
 def auxResetValuess(burned_nodes,protected_nodes,):
     burned_nodes.clear()
     protected_nodes.clear()
@@ -23,7 +22,6 @@ def auxResetValuess(burned_nodes,protected_nodes,):
     n_burned = 0
     time_number = 0
     color_info = ['#00b4d9'] 
-
 def resetValues():
     auxResetValuess(burned_nodes,protected_nodes)
 
@@ -75,21 +73,20 @@ def makeFire(next_fire_set, adjacency, burned_nodes):
     '''
     update_next_fire = set()
 
-    #* Burn each node next to the fire if not protected
+    # Burn each node next to the fire if not protected
     for item in next_fire_set:
         if item not in protected_nodes:
-            #* Burn curr node
+            # Burn curr node
             burned_nodes.append(item)
-            #* Get update of next fire nodes (Neighbours)
-            #* In a set because you can access them from more than 1 edge but can't burn them twice
+            # Get update of next fire nodes (Neighbours)
+            # In a set because you can access them from more than 1 edge but can't burn them twice
             for obj in updateNextFireNodes(next_fire_set,item, adjacency, burned_nodes) :
                 update_next_fire.add(obj)
     return update_next_fire
 
 def updateNextFireNodes(next_fire_set,curr_fire_node, adjacency, burned_nodes) :
     '''
-    ## Get a list of Neighbours of curr fire node 
-    '''
+    ## Get a list of Neighbours of curr fire node '''
     new_fire = []
     # print(f"Current fire: {curr_fire_node}")
     for item in range(len(adjacency[curr_fire_node])) :
@@ -104,8 +101,7 @@ def updateNextFireNodes(next_fire_set,curr_fire_node, adjacency, burned_nodes) :
 def degreeGlobal() : 
     '''
     ## Degree
-    Protect node with the highest amount of edges
-    '''
+    Protect node with the highest amount of edges'''
     # Nodo a proteger
     biggest_node_adj = -1
     # Cantidad de adjacencias
@@ -129,8 +125,7 @@ def degreeLocal():
     '''
     ## Threat 
     Protect threated nodes
-    Protect node with the highest amount of edges inside next_fire_set
-    '''
+    Protect node with the highest amount of edges inside next_fire_set'''
     biggest_node_adj = -1 
     total_adj = 0
     for node in next_fire_set:
@@ -141,35 +136,36 @@ def degreeLocal():
         if aux_adj > total_adj:
             total_adj = aux_adj
             biggest_node_adj = node
+    # print('Nodo protegido local:', biggest_node_adj)
     protected_nodes.append(biggest_node_adj)
     return biggest_node_adj
 
+
+
 def countChildren(parentNode,visited_nodes):
     '''
-    ## Count the number of children in a parent node
-    '''
+    ## Count the number of children in a parent node'''
     
-    total_elements_of_subtree = [] #* all of them
+    total_elements_of_subtree = [] #* all of them, also grandchilds
     children_nodes = [] #* only the direct sons
 
     for currNode in range(0,size_of_graph):
-        if currNode not in burned_nodes: #* Dont visit parent
-            if currNode not in visited_nodes: #* dont cicle inside triangules
-                if adjacency[parentNode][currNode] == 1 : #* if there is a conection 
+        if currNode not in burned_nodes: #* no ir hace arriba
+            if currNode not in visited_nodes: #* no repetir triangulos
+                if adjacency[parentNode][currNode] == 1 : #* si si hay conexion 
                     visited_nodes.append(currNode)
                     children_nodes.append(currNode)
 
     total_elements_of_subtree += children_nodes
-    if len(children_nodes) > 0: #* check final level
-        for visit_child in children_nodes : #* count the rest of the levels
+    if len(children_nodes) > 0:
+        for visit_child in children_nodes :
             total_elements_of_subtree += countChildren(visit_child, visited_nodes)
     return total_elements_of_subtree
 
 def biggestSubtree():
     '''
     ## Desc
-    Get the node with the highest subtreee / sons
-    '''
+    Get the node with the highest subtreee / sons'''
     biggest_child_node = -1
     total_children = 0
     for snode in next_fire_set:
@@ -195,8 +191,7 @@ def biggestSubtree():
         
 def countGrandChildren(parentNode,visited_nodes, limit):
     '''
-    ## Count the number of children in a parent node with a specifc limit
-    '''
+    ## Count the number of children in a parent node'''
     total_elements_of_subtree = [] #* all of them, also grandchilds
     children_nodes = [] #* only the direct sons
     if ( limit  > 0 ) :
@@ -217,20 +212,20 @@ def countGrandChildren(parentNode,visited_nodes, limit):
 def biggestGrandChildren():
     '''
     ## BGC
-    Get the node with the highest subtreee / sons at a limit '''
-    biggest_family = -1
+    Get the node with the highest subtreee / sons'''
+    biggest_child_node = -1
     total_children = 0
     for snode in next_fire_set:
         aux_count_child = countGrandChildren(snode, [] , 2)
         if  len(aux_count_child) > total_children: 
-            biggest_family = snode
+            biggest_child_node = snode
             total_children = len(aux_count_child)
 
-    if biggest_family != -1 : 
+    if biggest_child_node != -1 : 
         # print('Nodo con mas nietos:', biggest_child_node)
         # print(f'Se protege {biggest_child_node}')
-        protected_nodes.append(biggest_family)
-        return biggest_family
+        protected_nodes.append(biggest_child_node)
+        return biggest_child_node
 
     # en caso de ser un nodo default, no se entra en el try except de abajo
     elif len(next_fire_set) != 0 :
@@ -239,7 +234,7 @@ def biggestGrandChildren():
         protected_nodes.append(default_node_to_save)
         return default_node_to_save
 
-    return biggest_family
+    return biggest_child_node
 
 def printStatus():
     showGraphWithLabels(adjacency)
@@ -312,8 +307,8 @@ def ffp(heuristic, info) :
     
     # print("******************************")
 
-# startDataFromCSV('tree3.csv')
-# ffp(biggestGrandChildren, True)
+startDataFromCSV('tree3.csv')
+ffp(biggestSubtree, True)
 
 
 '''
