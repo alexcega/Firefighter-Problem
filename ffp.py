@@ -312,8 +312,8 @@ def ffp(heuristic, info) :
     
     # print("******************************")
 
-# startDataFromCSV('tree3.csv')
-# ffp(biggestGrandChildren, True)
+startDataFromCSV('mapslocal/10_local_80g_30p_8-10_9False.txt')
+ffp(biggestGrandChildren, True)
 
 
 '''
